@@ -1,0 +1,8 @@
+if(WIN32)
+	file(COPY ${CMAKE_CURRENT_LIST_DIR}/../vendor/windows/bin/steam_api64.dll DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
+if(APPLE)
+	file(COPY ${CMAKE_CURRENT_LIST_DIR}/../vendor/macos/lib/libvkd3d.1.dylib DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	file(COPY ${CMAKE_CURRENT_LIST_DIR}/../vendor/macos/lib/libvkd3d-shader.1.dylib DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+	file(COPY ${CMAKE_CURRENT_LIST_DIR}/../vendor/macos/lib/libvkd3d-utils.1.dylib DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
