@@ -1,16 +1,17 @@
 #include "EditorRenderer.h"
 #include <spdlog/spdlog.h>
+#include <stdexcept>
 
-#define CHECK_TEXTURE(device,texture,info)                            \
-texture = SDL_CreateGPUTexture(device,&info);                         \
-if(!texture) {                                                        \
-    spdlog::critical("Failed to create texture: {0}",SDL_GetError()); \
-    abort();                                                          \
+#define CHECK_TEXTURE(device,texture,info)                                                 \
+texture = SDL_CreateGPUTexture(device,&info);                                              \
+if(!texture) {                                                                             \
+    throw std::runtime_error(std::format("Failed to create texture: {}",SDL_GetError()));  \
 }
 
-EditorRenderer::EditorRenderer(SDL_Window *window,
-                   SDL_GPUDevice *device,
-                   SDL_GPUTextureFormat colorTargetFormat) : m_window(window), m_device(device) {
+EditorRenderer::EditorRenderer(
+                    SDL_Window *window,
+                    SDL_GPUDevice *device,
+                    SDL_GPUTextureFormat colorTargetFormat) : m_window(window), m_device(device) {
     int w, h;
     SDL_GetWindowSizeInPixels(m_window, &w, &h);
     m_lastWidth = w;
@@ -60,7 +61,7 @@ EditorRenderer::EditorRenderer(SDL_Window *window,
         },
         .load_op = SDL_GPU_LOADOP_DONT_CARE,
         .flip_mode = SDL_FLIP_NONE,
-        .filter = SDL_GPU_FILTER_LINEAR
+        .filter = SDL_GPU_FILTER_NEAREST
     };
 
     CHECK_TEXTURE(m_device, m_colorTarget, m_colorTargetInfo);
@@ -121,15 +122,13 @@ void EditorRenderer::PresentFrame() {
 }
 
 void EditorRenderer::Quit() {
+    SDL_WaitForGPUIdle(m_device);
     SDL_ReleaseGPUTexture(m_device, m_colorTarget);
     SDL_ReleaseGPUTexture(m_device, m_depthTarget);
 }
 
 void EditorRenderer::RecreateRenderTextures() {
     if (m_lastWidth != m_currWidth || m_lastHeight != m_currHeight) {
-        spdlog::debug("Swapchain invalidated, recreating rendering textures [{0}x{1}] -> [{2}x{3}]", m_lastWidth,
-                      m_lastHeight, m_currWidth, m_currHeight);
-
         SDL_WaitForGPUIdle(m_device);
         SDL_ReleaseGPUTexture(m_device, m_colorTarget);
         SDL_ReleaseGPUTexture(m_device, m_depthTarget);

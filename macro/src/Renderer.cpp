@@ -7,19 +7,17 @@
     #define BUFFER_SIZE 128 * 1024 * 1024 
 #endif
 
-#define CHECK_TEXTURE(device,texture,info)                            \
-texture = SDL_CreateGPUTexture(device,&info);                         \
-if(!texture) {                                                        \
-    spdlog::critical("Failed to create texture: {0}",SDL_GetError()); \
-    abort();                                                          \
-}                                                                     \
+#define CHECK_TEXTURE(device,texture,info)                                                \
+texture = SDL_CreateGPUTexture(device,&info);                                             \
+if(!texture) {                                                                            \
+    throw std::runtime_error(std::format("Failed to create texture: {}",SDL_GetError())); \
+}                                                                                                                                                     \
 
-#define CHECK_BUFFER(device,buffer,info)                             \
-buffer = SDL_CreateGPUBuffer(device,&info);                          \
-if(!buffer) {                                                        \
-    spdlog::critical("Failed to create buffer: {0}",SDL_GetError()); \
-    abort();                                                         \
-}                                                                    \
+#define CHECK_BUFFER(device,buffer,info)                                                 \
+buffer = SDL_CreateGPUBuffer(device,&info);                                              \
+if(!buffer) {                                                                            \
+    throw std::runtime_error(std::format("Failed to create buffer: {}",SDL_GetError())); \
+}
 
 Renderer::Renderer(SDL_Window *window,
                    SDL_GPUDevice *device,

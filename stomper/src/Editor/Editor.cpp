@@ -2,20 +2,37 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_sdl3.h"
 #include "ImGui/imgui_impl_sdlgpu3.h"
+#include <SDL3_shadercross/SDL_shadercross.h>
 
 Editor::Editor() {
-    SDL_Init(SDL_INIT_VIDEO);
+    if (!SDL_Init(SDL_INIT_VIDEO)) {
+        throw std::runtime_error(std::format("Failed to initialize SDL: {}",SDL_GetError()));
+    }
     m_editorWindow = SDL_CreateWindow("Stomper", 1280, 720,SDL_WINDOW_RESIZABLE);
+    if (!m_editorWindow) {
+        throw std::runtime_error(std::format("Failed to initialize editor window: {}",SDL_GetError()));
+    }
     m_gameWindow = SDL_CreateWindow("Stomper - Viewport", 1280, 720,SDL_WINDOW_RESIZABLE);
+    if (!m_gameWindow) {
+        throw std::runtime_error(std::format("Failed to initialize game window: {}",SDL_GetError()));
+    }
     m_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
-    SDL_ClaimWindowForGPUDevice(m_device,m_editorWindow);
-    SDL_ClaimWindowForGPUDevice(m_device,m_gameWindow);
-
+    if (!m_device) {
+        throw std::runtime_error(std::format("Failed to initialize GPUDevice: {}",SDL_GetError()));
+    }
+    if (!SDL_ClaimWindowForGPUDevice(m_device,m_editorWindow)) {
+        throw std::runtime_error(std::format("Failed to claim editor window: {}",SDL_GetError()));
+    }
+    if (!SDL_ClaimWindowForGPUDevice(m_device,m_gameWindow)) {
+        throw std::runtime_error(std::format("Failed to claim game window: {}",SDL_GetError()));
+    }
+    if (!SDL_ShaderCross_Init()) {
+        throw std::runtime_error(std::format("Failed to initialize ShaderCross: {}",SDL_GetError()));
+    }
     m_editorRenderer = new EditorRenderer(m_editorWindow, m_device,
                                     SDL_GetGPUSwapchainTextureFormat(m_device, m_editorWindow));
     m_gameRenderer   = new Renderer(m_gameWindow, m_device,
                                     SDL_GetGPUSwapchainTextureFormat(m_device, m_gameWindow));
-
     SetupImGui();
 }
 
@@ -34,8 +51,8 @@ void Editor::Run() {
             }
         }
         TickEditor();
-        TickGame();
         RenderEditor();
+        TickGame();
         RenderGame();
     }
     Quit();
@@ -62,6 +79,8 @@ void Editor::TickEditor() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
+    ImGui::Begin("Viewport");
+    ImGui::End();
 }
 
 void Editor::TickGame() {
@@ -98,6 +117,7 @@ void Editor::RenderGame() {
 }
 
 void Editor::Quit() {
+    SDL_ShaderCross_Quit();
     SDL_WaitForGPUIdle(m_device);
     ImGui_ImplSDL3_Shutdown();
     ImGui_ImplSDLGPU_Shutdown();

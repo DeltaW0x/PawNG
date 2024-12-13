@@ -9,7 +9,7 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION $<$<CONFIG:Debug>:OFF>$<$<CONFIG:Release>:ON>)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 include_directories(${CMAKE_SOURCE_DIR}/vendor/$<$<BOOL:${WIN32}>:windows>$<$<BOOL:${APPLE}>:macos>$<$<BOOL:${LINUX}>:linux>/include)
