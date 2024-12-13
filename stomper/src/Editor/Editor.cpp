@@ -8,11 +8,11 @@ Editor::Editor() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         throw std::runtime_error(std::format("Failed to initialize SDL: {}",SDL_GetError()));
     }
-    m_editorWindow = SDL_CreateWindow("Stomper", 1280, 720,SDL_WINDOW_RESIZABLE);
+    m_editorWindow = SDL_CreateWindow("Stomper", 1280, 720,SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
     if (!m_editorWindow) {
         throw std::runtime_error(std::format("Failed to initialize editor window: {}",SDL_GetError()));
     }
-    m_gameWindow = SDL_CreateWindow("Stomper - Viewport", 1280, 720,SDL_WINDOW_RESIZABLE);
+    m_gameWindow = SDL_CreateWindow("Stomper - Viewport", 1280, 720,SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
     if (!m_gameWindow) {
         throw std::runtime_error(std::format("Failed to initialize game window: {}",SDL_GetError()));
     }
@@ -79,7 +79,7 @@ void Editor::TickEditor() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
-    ImGui::Begin("Viewport");
+    ImGui::Begin("Viewport",nullptr,ImGuiWindowFlags_UnsavedDocument);
     ImGui::End();
 }
 
