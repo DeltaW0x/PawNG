@@ -16,7 +16,7 @@ Editor::Editor() {
     if (!m_gameWindow) {
         throw std::runtime_error(std::format("Failed to initialize game window: {}",SDL_GetError()));
     }
-    m_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_MSL, true, nullptr);
+    m_device = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_MSL | SDL_GPU_SHADERFORMAT_SPIRV, true, nullptr);
     if (!m_device) {
         throw std::runtime_error(std::format("Failed to initialize GPUDevice: {}",SDL_GetError()));
     }
@@ -58,13 +58,24 @@ void Editor::Run() {
     Quit();
 }
 
+SDL_Window* Editor::GetEditorWindow()
+{
+    return m_editorWindow;
+}
+
+SDL_Window* Editor::GetGameWindow()
+{
+    return m_gameWindow;
+}
+
 void Editor::SetupImGui() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
     (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad; // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; 
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::StyleColorsDark();
     ImGui_ImplSDL3_InitForOther(m_editorWindow);
     ImGui_ImplSDLGPU_InitInfo init_info = {};

@@ -1,7 +1,7 @@
 #include "Project.h"
-#include <fstream>
-#include <sstream>
+#include "Filesystem/Filesystem.h"
 #include <iomanip>
+#include <fstream>
 #include <spdlog/spdlog.h>
 #include <nlohmann/json.hpp>
 
@@ -23,7 +23,7 @@ bool Project::New(const std::string& name, const fs::path &path)
     m_lastModified = GetCurrentTimestamp();
     Save(path);
     
-    if (sqlite3_open((path / "assets.db").c_str(), &m_db) != SQLITE_OK) {
+    if (sqlite3_open((path / "assets.db").string().c_str(), &m_db) != SQLITE_OK) {
         spdlog::error("Failed to open project database file: {0}", sqlite3_errmsg(m_db));
         return false;
     }
@@ -34,8 +34,8 @@ bool Project::New(const std::string& name, const fs::path &path)
     if(sqlite3_exec(m_db, sql_cmd, nullptr, 0, &cmdError) != SQLITE_OK) {
         spdlog::error("Failed to create assets database: {0}",cmdError);
         return false;
-   }
-   return true;
+    }
+    return true;
 }
 
 bool Project::Load(const fs::path &path)
@@ -44,23 +44,27 @@ bool Project::Load(const fs::path &path)
         spdlog::error("Failed to load project at {0}: file does not exist", path.string());
         return false;
     }
-    if (sqlite3_open((path.parent_path() / "assets.db").c_str(), &m_db) != SQLITE_OK) {
+    if (sqlite3_open((path.parent_path() / "assets.db").string().c_str(), &m_db) != SQLITE_OK) {
         spdlog::error("Failed to open project database file: {0}", sqlite3_errmsg(m_db));
         return false;
     }
 
-    json j;
-    try {
-        std::ifstream ifs(path.string());
-        std::stringstream ss;
-        ss << ifs.rdbuf();
-        j = json::parse(ss.str());
+    try 
+    {
+        json j = json::parse(Filesystem::ReadFileToString(path));
 
         m_name = j["project_name"].get<std::string>();
         m_lastModified = j["last_modified"].get<std::string>();
-
-    }catch (std::exception &e) {
-        spdlog::error("Failed to load project: {0}", e.what());
+    }
+    catch(const std::ifstream::failure& e)
+    {
+        spdlog::error("Failed to load project file: {0}", e.what());
+        return false;
+    }
+    catch (const json::exception& e)
+    {
+        spdlog::error("Failed to parse project file: {0}", e.what());
+        return false;
     }
     return true;
 }
@@ -74,24 +78,45 @@ bool Project::Save(const fs::path& path)
     j["last_modified"] = m_lastModified;
 
 #pragma region Json & Database write
-    try {
-        std::ofstream jsonFS(path / fs::path(m_name + ".mproj"));
+    try 
+    {
+        std::ofstream jsonFS;
+        jsonFS.exceptions(std::fstream::failbit);
+        jsonFS.open(path / fs::path(m_name + ".mproj"));
         jsonFS << j.dump(4);
         jsonFS.close();
-    }catch(std::exception& e) {
+    }
+    catch (const json::exception& e)
+    {
+        spdlog::error("Failed to compile project file: {0}", e.what());
+        return false;
+    }
+    catch(const std::ifstream::failure& e)
+    {
         spdlog::error("Failed to save project file: {0}", e.what());
         return false;
     }
+ 
     if(sqlite3_close(m_db) != SQLITE_OK){
         spdlog::error("Failed to save project database file: {0}", sqlite3_errmsg(m_db));
         return false;
     }
-    if (sqlite3_open((path / "assets.db").c_str(), &m_db) != SQLITE_OK) {
+    if (sqlite3_open((path / "assets.db").string().c_str(), &m_db) != SQLITE_OK) {
         spdlog::error("Failed to open project database file: {0}", sqlite3_errmsg(m_db));
         return false;
     }
 #pragma endregion
     return true;
+}
+
+WindowConfig& Project::GetEditorWindowConfig()
+{
+    return m_editorWndConfig;
+}
+
+WindowConfig& Project::GetGameWindowConfig()
+{
+    return m_gameWndConfig;
 }
 
 std::string Project::GetCurrentTimestamp()

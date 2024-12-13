@@ -3,11 +3,13 @@
 #include <Renderer.h>
 #include <Filesystem/Filesystem.h>
 
+
 class Editor
 {
 public:
     Editor();
     void Run();
+
 private:
     void Quit();
     void SetupImGui();
@@ -23,6 +25,6 @@ private:
     Renderer* m_gameRenderer;
 
     SDL_GPUDevice* m_device;
-    SDL_Window*    m_editorWindow;
-    SDL_Window*    m_gameWindow;
+    static SDL_Window*    m_editorWindow;
+    static SDL_Window*    m_gameWindow;
 };

@@ -15,6 +15,8 @@ set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 include_directories(${CMAKE_SOURCE_DIR}/vendor/$<$<BOOL:${WIN32}>:windows>$<$<BOOL:${APPLE}>:macos>$<$<BOOL:${LINUX}>:linux>/include)
 link_directories(${CMAKE_SOURCE_DIR}/vendor/$<$<BOOL:${WIN32}>:windows>$<$<BOOL:${APPLE}>:macos>$<$<BOOL:${LINUX}>:linux>/lib)
 
+add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=0>)
+
 CPMAddPackage(
     NAME SDL3
     GITHUB_REPOSITORY libsdl-org/SDL

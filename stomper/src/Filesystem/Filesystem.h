@@ -6,4 +6,5 @@ class Filesystem {
 public:
     Filesystem() = default;
     static std::filesystem::path GetUserPath();
+    static std::string ReadFileToString(const std::filesystem::path& path);
 };

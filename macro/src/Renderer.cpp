@@ -78,13 +78,13 @@ Renderer::Renderer(SDL_Window *window,
     CHECK_TEXTURE(m_device, m_depthTarget, m_depthTargetInfo);
 
     SDL_GPUBufferCreateInfo vertexBufferInfo = {
-        .size = BUFFER_SIZE,
-        .usage = SDL_GPU_BUFFERUSAGE_VERTEX
+        .usage = SDL_GPU_BUFFERUSAGE_VERTEX,
+        .size = BUFFER_SIZE
     };
 
     SDL_GPUBufferCreateInfo indexBufferInfo = {
-        .size = BUFFER_SIZE,
-        .usage = SDL_GPU_BUFFERUSAGE_INDEX
+        .usage = SDL_GPU_BUFFERUSAGE_INDEX,
+        .size = BUFFER_SIZE
     };
 
     CHECK_BUFFER(m_device,m_staticVertexBuffer,vertexBufferInfo);
@@ -146,8 +146,11 @@ void Renderer::PresentFrame() {
 }
 
 void Renderer::Quit() {
+    SDL_WaitForGPUIdle(m_device);
     SDL_ReleaseGPUTexture(m_device, m_colorTarget);
     SDL_ReleaseGPUTexture(m_device, m_depthTarget);
+    SDL_ReleaseGPUBuffer(m_device, m_staticIndexBuffer);
+    SDL_ReleaseGPUBuffer(m_device, m_staticVertexBuffer);
 }
 
 void Renderer::RecreateRenderTextures() {

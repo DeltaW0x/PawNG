@@ -1,8 +1,11 @@
 #pragma once
 #include "SQlite/sqlite3.h"
+#include <tuple>
 #include <filesystem>
-
+#include <SDL3/SDL.h>
 namespace fs = std::filesystem;
+
+
 class Project {
 public:
     Project();
@@ -12,10 +15,19 @@ public:
     bool Load(const fs::path& path);
     bool Save(const fs::path& path);
 
+public:
+    std::string name;
 private:
-    std::string GetCurrentTimestamp();
-private:
-    std::string m_name;
-    std::string m_lastModified;
     sqlite3* m_db;
 };
+
+inline void to_json(json& j, const Project& p) {
+    j = json
+    { 
+        {"project_name", p.name}
+    };
+}
+
+inline void from_json(const json& j, Project& p) {
+    j.at("project_name").get_to(p.name);
+}
