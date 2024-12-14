@@ -2,6 +2,8 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_sdl3.h"
 #include "ImGui/imgui_impl_sdlgpu3.h"
+#include <fstream>
+#include <spdlog/spdlog.h>
 #include <SDL3_shadercross/SDL_shadercross.h>
 
 Editor::Editor() {
@@ -29,11 +31,16 @@ Editor::Editor() {
     if (!SDL_ShaderCross_Init()) {
         throw std::runtime_error(std::format("Failed to initialize ShaderCross: {}",SDL_GetError()));
     }
-    m_editorRenderer = new EditorRenderer(m_editorWindow, m_device,
-                                    SDL_GetGPUSwapchainTextureFormat(m_device, m_editorWindow));
-    m_gameRenderer   = new Renderer(m_gameWindow, m_device,
-                                    SDL_GetGPUSwapchainTextureFormat(m_device, m_gameWindow));
+
     SetupImGui();
+    LoadEditorConfig();
+    
+    m_editorRenderer = new EditorRenderer(m_editorWindow, m_device,
+            SDL_GetGPUSwapchainTextureFormat(m_device, m_editorWindow));
+    m_gameRenderer = new Renderer(m_gameWindow, m_device,
+            SDL_GetGPUSwapchainTextureFormat(m_device, m_gameWindow));
+
+    m_projectEditor = new ProjectEditor(m_editorWindow, m_gameWindow, &m_editorConfig);
 }
 
 void Editor::Run() {
@@ -58,15 +65,6 @@ void Editor::Run() {
     Quit();
 }
 
-SDL_Window* Editor::GetEditorWindow()
-{
-    return m_editorWindow;
-}
-
-SDL_Window* Editor::GetGameWindow()
-{
-    return m_gameWindow;
-}
 
 void Editor::SetupImGui() {
     IMGUI_CHECKVERSION();
@@ -90,12 +88,11 @@ void Editor::TickEditor() {
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
     ImGui::DockSpaceOverViewport();
-    ImGui::Begin("Viewport",nullptr,ImGuiWindowFlags_UnsavedDocument);
-    ImGui::End();
+    m_projectEditor->Tick();
 }
 
 void Editor::TickGame() {
-
+   
 }
 
 void Editor::RenderEditor() {
@@ -127,6 +124,40 @@ void Editor::RenderGame() {
     m_gameRenderer->PresentFrame();
 }
 
+void Editor::LoadEditorConfig()
+{
+    spdlog::info("Loading editor config from {0}", (m_filesystem.GetUserPath() / "editor_config.json").string());
+    if (!exists((m_filesystem.GetUserPath() / "editor_config.json")))
+    {
+        SaveEditorConfig();
+        return;
+    }
+    json j = json::parse(m_filesystem.ReadFileToString(m_filesystem.GetUserPath() / "editor_config.json"));
+    m_editorConfig = j.get<EditorConfig>();
+}
+
+void Editor::SaveEditorConfig()
+{
+    json j = m_editorConfig;
+    try
+    {
+        std::ofstream of;
+        of.exceptions(std::ifstream::badbit);
+        of.open(m_filesystem.GetUserPath() / "editor_config.json");
+        of << j.dump(4);
+        of.close();
+    }
+    catch (const std::ifstream::failure& e)
+    {
+        spdlog::error("Failed to load project file: {0}", e.what());
+    }
+    catch (const json::exception& e)
+    {
+        spdlog::error("Failed to parse project file: {0}", e.what());
+    }
+}
+
+
 void Editor::Quit() {
     SDL_ShaderCross_Quit();
     SDL_WaitForGPUIdle(m_device);
@@ -141,6 +172,7 @@ void Editor::Quit() {
     SDL_DestroyWindow(m_editorWindow);
     SDL_DestroyWindow(m_gameWindow);
     SDL_Quit();
+    delete m_projectEditor;
     delete m_editorRenderer;
     delete m_gameRenderer;
 }
