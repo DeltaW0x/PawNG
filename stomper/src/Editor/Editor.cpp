@@ -48,6 +48,7 @@ void Editor::Run() {
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             ImGui_ImplSDL3_ProcessEvent(&e);
+            m_projectEditor->HandleEvents(&e);
             switch (e.type) {
                 case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
                 case SDL_EVENT_QUIT:
@@ -64,7 +65,6 @@ void Editor::Run() {
     }
     Quit();
 }
-
 
 void Editor::SetupImGui() {
     IMGUI_CHECKVERSION();

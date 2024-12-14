@@ -8,13 +8,13 @@ public:
              SDL_GPUTextureFormat colorTargetFormat = SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT);
 
     SDL_GPUCommandBuffer *StartRenderingPipeline();
-    SDL_GPUTexture *GetColorTarget();
-    SDL_GPUTexture *GetDepthTarget();
+    SDL_GPUTexture *GetColorTarget() const;
+    SDL_GPUTexture *GetDepthTarget() const;
 
     void PresentFrame();
-    void Quit();
+    void Quit() const;
 private:
-    SDL_GPUTextureFormat QueryDepthStencilFmt();
+    SDL_GPUTextureFormat QueryDepthStencilFmt() const;
     void RecreateRenderTextures();
 
     SDL_Window *m_window;
@@ -27,8 +27,8 @@ private:
     SDL_GPUTexture *m_depthTarget;
 
     SDL_GPUCommandBuffer *m_mainCmd;
-    SDL_GPUBuffer* m_staticVertexBuffer;
-    SDL_GPUBuffer* m_staticIndexBuffer;
+    SDL_GPUBuffer* m_vertexBuffer;
+    SDL_GPUBuffer* m_indexBuffer;
 
     SDL_GPUBlitInfo m_finalBlitInfo;
     uint32_t m_lastWidth, m_lastHeight;

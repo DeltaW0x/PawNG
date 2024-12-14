@@ -14,9 +14,13 @@ class ProjectEditor
 public:
 	ProjectEditor(SDL_Window* editorWindow, SDL_Window* gameWindow,EditorConfig* editorConf);
 	void Tick();
-
+	void HandleEvents(SDL_Event* e);
 private:
 	void DrawMenuBar();
+	void HandleCallback();
+	void NewProject();
+	void LoadProject();
+	void SaveProject();
 private:
 	Project m_project;
 	ProjectEditorState m_editorState;

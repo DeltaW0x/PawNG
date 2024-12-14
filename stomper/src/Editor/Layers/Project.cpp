@@ -1,10 +1,10 @@
 #include "Project.h"
 #include "Filesystem/Filesystem.h"
-#include <iomanip>
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-Project::Project() : m_db(nullptr) , name("unnamed_project")
+
+Project::Project() : m_db(nullptr) , name("unnamed_project"), m_initialized(false)
 {
 
 }
@@ -34,6 +34,7 @@ bool Project::New(const std::string& projectName, const fs::path &path)
         spdlog::error("Failed to create assets database: {0}",cmdError);
         return false;
     }
+    m_initialized = true;
     return true;
 }
 
@@ -65,6 +66,7 @@ bool Project::Load(const fs::path &path)
         spdlog::error("Failed to parse project file: {0}", e.what());
         return false;
     }
+    m_initialized = true;
     return true;
 }
 

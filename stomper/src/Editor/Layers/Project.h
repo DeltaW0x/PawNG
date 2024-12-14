@@ -28,6 +28,10 @@ public:
     bool Load(const fs::path& path);
     bool Save(const fs::path& path);
 
+    bool IsInitialized() const
+    {
+        return m_initialized;
+    }
 public:
     std::string name;
     WindowConfig editorWindowConf;
@@ -35,6 +39,7 @@ public:
 
 private:
     sqlite3* m_db;
+    bool m_initialized;
 };
 
 void to_json(json& j, const Project& p);
