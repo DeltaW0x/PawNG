@@ -1,11 +1,13 @@
-cmake_minimum_required(VERSION 3.29)
+cmake_minimum_required(VERSION 3.30)
 project(MacroPaw)
 include(CPM.cmake)
 
 find_program(CCACHE_FOUND ccache)
-if (CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-endif ()
+if(CCACHE_FOUND)
+        message("FOUND CCACHE")
+        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+endif()
+
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)

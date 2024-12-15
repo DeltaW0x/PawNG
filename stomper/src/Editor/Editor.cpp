@@ -2,8 +2,6 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_sdl3.h"
 #include "ImGui/imgui_impl_sdlgpu3.h"
-#include <fstream>
-#include <spdlog/spdlog.h>
 #include <SDL3_shadercross/SDL_shadercross.h>
 
 Editor::Editor()

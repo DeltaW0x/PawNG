@@ -1,13 +1,13 @@
 #include "Window.h"
 #include <stdexcept>
-#include <__format/format_functions.h>
+#include <spdlog/fmt/fmt.h>
 
 Window::Window(const std::string& title, unsigned int width, unsigned int height,int flags)
 {
     m_handle = SDL_CreateWindow(title.c_str(),static_cast<int>(width),static_cast<int>(height),flags);
     if(!m_handle)
     {
-        throw std::runtime_error(std::format("Failed to create window: {}",SDL_GetError()));
+        throw std::runtime_error(fmt::format("Failed to create window: {}",SDL_GetError()));
     }
 }
 
