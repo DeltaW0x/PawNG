@@ -3,8 +3,8 @@
 #include <stdexcept>
 
 Renderer::Renderer(
-    Window &window,
-    GPUDevice &device,
+    Window& window,
+    GPUDevice& device,
     SDL_GPUTextureFormat colorTargetFormat) : m_window(window), m_device(device)
 {
     float2 windowSize = m_window.GetSize();
@@ -71,10 +71,10 @@ SDL_GPUTextureFormat Renderer::QueryDepthStencilFmt() {
     if (m_device.SupportsTextureFormat(SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT, type, usage)) {
         return SDL_GPU_TEXTUREFORMAT_D24_UNORM_S8_UINT;
     }
-    throw std::runtime_error("Cannot find a valid depth stencil texture format");
+    spdlog::critical("Cannot find a valid depth stencil texture format");
 }
 
-CommandBuffer& Renderer::StartRenderingPipeline()
+CommandBuffer Renderer::StartRenderingPipeline()
 {
     m_mainCmd = m_device.AcquireCommandBuffer();
     return m_mainCmd;

@@ -3,12 +3,11 @@
 #include "Window.h"
 class Renderer {
 public:
-    Renderer(
-            Window& window,
+    Renderer(Window& window,
             GPUDevice& device,
             SDL_GPUTextureFormat colorTargetFormat = SDL_GPU_TEXTUREFORMAT_R16G16B16A16_FLOAT);
 
-    CommandBuffer& StartRenderingPipeline();
+    CommandBuffer StartRenderingPipeline();
     Texture&       GetColorTarget();
     Texture&       GetDepthTarget();
 

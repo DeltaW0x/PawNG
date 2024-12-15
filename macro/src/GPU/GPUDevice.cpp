@@ -1,12 +1,12 @@
 #include "GPU/GPUDevice.h"
 #include <stdexcept>
-#include <spdlog/fmt/fmt.h>
+#include <spdlog/spdlog.h>
 GPUDevice::GPUDevice(SDL_GPUShaderFormat shaderFormats, bool debug, const char *driver)
 {
     m_device = SDL_CreateGPUDevice(shaderFormats,debug,driver);
     if (!m_device)
     {
-        throw std::runtime_error(fmt::format("Failed to create GPU device: {0}", SDL_GetError()));
+        spdlog::critical("Failed to create GPU device: {0}", SDL_GetError());
     }
 }
 
@@ -41,7 +41,7 @@ CommandBuffer GPUDevice::AcquireCommandBuffer() const
     CommandBuffer cmd(SDL_AcquireGPUCommandBuffer(m_device));
     if(!cmd.m_handle)
     {
-        throw std::runtime_error(fmt::format("Failed to acquire GPU CommandBuffer: {0}", SDL_GetError()));
+        spdlog::critical("Failed to acquire GPU CommandBuffer: {0}", SDL_GetError());
     }
     return cmd;
 }
@@ -51,7 +51,7 @@ void GPUDevice::SubmitCommandBuffer(CommandBuffer& cmd) const
     if (!SDL_SubmitGPUCommandBuffer(cmd.m_handle))
     {
         cmd.m_handle = nullptr;
-        throw std::runtime_error(fmt::format("Failed to submit GPU CommandBuffer: {0}", SDL_GetError()));
+        spdlog::critical("Failed to submit GPU CommandBuffer: {0}", SDL_GetError());
     }
     cmd.m_handle = nullptr;
 }
@@ -61,7 +61,7 @@ Fence GPUDevice::SubmitCommandBufferWithFence(CommandBuffer &cmd) const
     Fence fence(SDL_SubmitGPUCommandBufferAndAcquireFence(cmd.m_handle));
     if (!fence.m_handle)
     {
-        throw std::runtime_error(fmt::format("Failed to submit command buffer and acquire fence: {0}",SDL_GetError()));
+        spdlog::critical("Failed to submit command buffer and acquire fence: {0}", SDL_GetError());
     }
     return fence;
 }

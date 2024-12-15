@@ -33,7 +33,8 @@ ProjectEditor::ProjectEditor(Window& editorWindow, Window& gameWindow, EditorCon
 {
 	if (!m_editorConfig.project.empty())
 	{
-		m_project.Load(m_editorConfig.project);
+		//m_project.Load(m_editorConfig.project);
+		m_editorWindow.SetTitle("Stomper - " + m_project.name);
 		m_editorState = ProjectEditorState::EditingProject;
 	}
 }
@@ -91,16 +92,27 @@ void ProjectEditor::HandleCallback()
 	if (g_newProjectSignal)
 	{
 		auto p = fs::path(g_projectPath);
-		m_project.New(p.filename().string(),p.parent_path());
+		//m_project.New(p.filename().string(),p.parent_path());
+		m_editorConfig.project = g_projectPath;
 		g_newProjectSignal = false;
 		g_projectPath = "";
+		m_editorState = ProjectEditorState::EditingProject;
 	}
 	if (g_loadProjectSignal)
 	{
 		auto p = fs::path(g_projectPath);
-		m_project.Load(g_projectPath);
+		//m_project.Load(g_projectPath);
+
+		m_editorWindow.SetPosition(float2(m_project.editorWindowConf.position[0], m_project.editorWindowConf.position[1]));
+		m_editorWindow.SetSize(float2(m_project.editorWindowConf.dimension[0], m_project.editorWindowConf.dimension[1]));
+		m_gameWindow.SetPosition(float2(m_project.gameWindowConf.position[0], m_project.gameWindowConf.position[1]));
+		m_gameWindow.SetSize(float2(m_project.gameWindowConf.dimension[0], m_project.gameWindowConf.dimension[1]));
+
+		m_editorConfig.project = g_projectPath;
+
 		g_loadProjectSignal = false;
 		g_projectPath = "";
+		m_editorState = ProjectEditorState::EditingProject;
 	}
 }
 
@@ -116,6 +128,18 @@ void ProjectEditor::LoadProject()
 
 void ProjectEditor::SaveProject()
 {
+	m_project.editorWindowConf.dimension[0] = m_editorWindow.GetSize().x;
+	m_project.editorWindowConf.dimension[1] = m_editorWindow.GetSize().y;
+	m_project.editorWindowConf.position[0]  = m_editorWindow.GetPosition().x;
+	m_project.editorWindowConf.position[1]  = m_editorWindow.GetPosition().y;
+	m_project.editorWindowConf.monitor      = m_editorWindow.GetDisplay();
+
+	m_project.gameWindowConf.dimension[0] = m_gameWindow.GetSize().x;
+	m_project.gameWindowConf.dimension[1] = m_gameWindow.GetSize().y;
+	m_project.gameWindowConf.position[0]  = m_gameWindow.GetPosition().x;
+	m_project.gameWindowConf.position[1]  = m_gameWindow.GetPosition().y;
+	m_project.gameWindowConf.monitor      = m_gameWindow.GetDisplay();
+
 	m_project.Save(m_editorConfig.project);
 }
 

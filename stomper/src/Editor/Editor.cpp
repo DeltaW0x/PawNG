@@ -2,6 +2,8 @@
 #include "ImGui/imgui.h"
 #include "ImGui/imgui_impl_sdl3.h"
 #include "ImGui/imgui_impl_sdlgpu3.h"
+#include <fstream>
+#include <spdlog/spdlog.h>
 #include <SDL3_shadercross/SDL_shadercross.h>
 
 Editor::Editor()
@@ -13,13 +15,12 @@ Editor::Editor()
     , m_projectEditor(m_editorWindow,m_gameWindow,m_editorConfig)
 {
     if (!SDL_ShaderCross_Init()) {
-        throw std::runtime_error(std::format("Failed to initialize ShaderCross: {}",SDL_GetError()));
+        spdlog::critical("Failed to initialize ShaderCross: {0}", SDL_GetError());
     }
     m_gpuDevice.ClaimWindow(m_editorWindow);
     m_gpuDevice.ClaimWindow(m_gameWindow);
     SetupImGui();
     LoadEditorConfig();
-
 }
 
 void Editor::Run() {

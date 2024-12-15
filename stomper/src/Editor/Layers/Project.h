@@ -10,12 +10,11 @@ using json = nlohmann::json;
 
 struct WindowConfig
 {
-    bool maximized        = false;
     uint32_t position[2]  = { 0, 0 };
     uint32_t dimension[2] = { 1280,720 };
     SDL_DisplayID monitor = SDL_GetPrimaryDisplay();
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE(WindowConfig, maximized, position, dimension, monitor)
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE(WindowConfig, position, dimension, monitor)
 };
 
 class Project 
@@ -24,7 +23,7 @@ public:
     Project();
     ~Project();
 
-    bool New(const std::string& name,const fs::path &path);
+    bool New(const fs::path& path);
     bool Load(const fs::path& path);
     bool Save(const fs::path& path);
 
