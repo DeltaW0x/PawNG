@@ -3,6 +3,7 @@
 #include <string>
 #include <spdlog/spdlog.h>
 
+#define UNI_CTRL (e->key.mod & SDL_KMOD_GUI || e->key.mod & SDL_KMOD_CTRL)
 static SDL_DialogFileFilter g_filter = {"Stomper Project","mproj"};
 static bool g_newProjectSignal   = false;
 static bool g_loadProjectSignal  = false;
@@ -24,15 +25,15 @@ static void LoadProjectCallback(void *userdata, const char * const *filelist, in
 	g_loadProjectSignal = true;
 }
 
-ProjectEditor::ProjectEditor(SDL_Window* editorWindow, SDL_Window* gameWindow, EditorConfig* editorConf)
+ProjectEditor::ProjectEditor(Window& editorWindow, Window& gameWindow, EditorConfig& editorConf)
 	: m_editorWindow(editorWindow)
 	, m_gameWindow(gameWindow)
 	, m_editorConfig(editorConf)
 	, m_editorState(ProjectEditorState::NoProject)
 {
-	if (!m_editorConfig->project.empty())
+	if (!m_editorConfig.project.empty())
 	{
-		m_project.Load(m_editorConfig->project);
+		m_project.Load(m_editorConfig.project);
 		m_editorState = ProjectEditorState::EditingProject;
 	}
 }
@@ -48,9 +49,7 @@ void ProjectEditor::HandleEvents(SDL_Event *e)
 	switch (e->type)
 	{
 		case SDL_EVENT_KEY_DOWN:
-			if (e->key.key == SDLK_S &&
-				(e->key.mod & SDL_KMOD_GUI || e->key.mod & SDL_KMOD_CTRL) &&
-				m_project.IsInitialized())
+			if (e->key.key == SDLK_S && UNI_CTRL && m_project.IsInitialized())
 			{
 				SaveProject();
 			}
@@ -107,16 +106,16 @@ void ProjectEditor::HandleCallback()
 
 void ProjectEditor::NewProject()
 {
-	SDL_ShowSaveFileDialog(&NewProjectCallback,nullptr,m_editorWindow,&g_filter,1,nullptr);
+	SDL_ShowSaveFileDialog(&NewProjectCallback,nullptr,static_cast<SDL_Window *>(m_editorWindow),&g_filter,1,nullptr);
 }
 
 void ProjectEditor::LoadProject()
 {
-	SDL_ShowOpenFileDialog(&NewProjectCallback,nullptr,m_editorWindow,&g_filter,1,nullptr,false);
+	SDL_ShowOpenFileDialog(&NewProjectCallback,nullptr,static_cast<SDL_Window *>(m_editorWindow),&g_filter,1,nullptr,false);
 }
 
 void ProjectEditor::SaveProject()
 {
-	m_project.Save(m_editorConfig->project);
+	m_project.Save(m_editorConfig.project);
 }
 

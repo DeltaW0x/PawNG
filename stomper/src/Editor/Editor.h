@@ -1,6 +1,5 @@
 #pragma once
 #include "EditorConfig.h"
-#include "EditorRenderer/EditorRenderer.h"
 #include "Layers/ProjectEditor.h"
 #include <Renderer.h>
 #include <Filesystem/Filesystem.h>
@@ -24,14 +23,14 @@ private:
 private:
     bool m_running = true;
 
+    GPUDevice m_gpuDevice;
+    Window    m_editorWindow;
+    Window    m_gameWindow;
+
+    Renderer m_editorRenderer;
+    Renderer m_gameRenderer;
+
     Filesystem m_filesystem;
     EditorConfig m_editorConfig;
-    ProjectEditor* m_projectEditor;
-
-    EditorRenderer* m_editorRenderer;
-    Renderer* m_gameRenderer;
-
-    SDL_GPUDevice* m_device;
-    SDL_Window*    m_editorWindow;
-    SDL_Window*    m_gameWindow;
+    ProjectEditor m_projectEditor;
 };
