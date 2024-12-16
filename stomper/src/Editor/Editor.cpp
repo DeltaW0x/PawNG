@@ -12,6 +12,7 @@ Editor::Editor()
     , m_gameWindow("Stomper - Viewport", 1280, 720,SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY)
     , m_editorRenderer(m_editorWindow,m_gpuDevice,SDL_GPU_TEXTUREFORMAT_R8G8B8A8_UNORM)
     , m_gameRenderer(m_gameWindow,m_gpuDevice)
+    , m_editorConfig(LoadEditorConfig())
     , m_projectEditor(m_editorWindow,m_gameWindow,m_editorConfig)
 {
     if (!SDL_ShaderCross_Init()) {
@@ -20,7 +21,6 @@ Editor::Editor()
     m_gpuDevice.ClaimWindow(m_editorWindow);
     m_gpuDevice.ClaimWindow(m_gameWindow);
     SetupImGui();
-    LoadEditorConfig();
 }
 
 void Editor::Run() {
@@ -104,16 +104,16 @@ void Editor::RenderGame() {
     m_gameRenderer.PresentFrame();
 }
 
-void Editor::LoadEditorConfig()
+EditorConfig Editor::LoadEditorConfig()
 {
     spdlog::info("Loading editor config from {0}", (m_filesystem.GetUserPath() / "editor_config.json").string());
     if (!exists((m_filesystem.GetUserPath() / "editor_config.json")))
     {
         SaveEditorConfig();
-        return;
+        return {};
     }
     json j = json::parse(m_filesystem.ReadFileToString(m_filesystem.GetUserPath() / "editor_config.json"));
-    m_editorConfig = j.get<EditorConfig>();
+    return j.get<EditorConfig>();
 }
 
 void Editor::SaveEditorConfig()
@@ -139,6 +139,7 @@ void Editor::SaveEditorConfig()
 
 
 void Editor::Quit() {
+    SaveEditorConfig();
     m_gpuDevice.WaitForIdle();
     SDL_ShaderCross_Quit();
     ImGui_ImplSDL3_Shutdown();

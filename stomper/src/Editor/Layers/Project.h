@@ -26,11 +26,8 @@ public:
     bool New(const fs::path& path);
     bool Load(const fs::path& path);
     bool Save(const fs::path& path);
+    bool IsInitialized() const;
 
-    bool IsInitialized() const
-    {
-        return m_initialized;
-    }
 public:
     std::string name;
     WindowConfig editorWindowConf;

@@ -18,7 +18,7 @@ private:
     void RenderEditor();
     void RenderGame();
 
-    void LoadEditorConfig();
+    EditorConfig LoadEditorConfig();
     void SaveEditorConfig();
 private:
     bool m_running = true;

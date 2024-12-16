@@ -33,7 +33,7 @@ ProjectEditor::ProjectEditor(Window& editorWindow, Window& gameWindow, EditorCon
 {
 	if (!m_editorConfig.project.empty())
 	{
-		//m_project.Load(m_editorConfig.project);
+		m_project.Load(m_editorConfig.project);
 		m_editorWindow.SetTitle("Stomper - " + m_project.name);
 		m_editorState = ProjectEditorState::EditingProject;
 	}
@@ -91,8 +91,7 @@ void ProjectEditor::HandleCallback()
 {
 	if (g_newProjectSignal)
 	{
-		auto p = fs::path(g_projectPath);
-		//m_project.New(p.filename().string(),p.parent_path());
+		m_project.New(g_projectPath);
 		m_editorConfig.project = g_projectPath;
 		g_newProjectSignal = false;
 		g_projectPath = "";
@@ -100,8 +99,7 @@ void ProjectEditor::HandleCallback()
 	}
 	if (g_loadProjectSignal)
 	{
-		auto p = fs::path(g_projectPath);
-		//m_project.Load(g_projectPath);
+		m_project.Load(g_projectPath);
 
 		m_editorWindow.SetPosition(float2(m_project.editorWindowConf.position[0], m_project.editorWindowConf.position[1]));
 		m_editorWindow.SetSize(float2(m_project.editorWindowConf.dimension[0], m_project.editorWindowConf.dimension[1]));
